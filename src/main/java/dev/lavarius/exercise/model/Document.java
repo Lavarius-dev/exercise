@@ -1,33 +1,33 @@
 package dev.lavarius.exercise.model;
 
 public class Document {
-    private Long id;
+    private Integer id;
     private String subject;
     private String author;
     private String performers;
-    private String data;
+    private String date;
     private Boolean signControl;
     private Boolean signPerformance;
     private String information;
 
-    public Document(Long id, String subject, String author,
+    public Document(Integer id, String subject, String author,
                     String performers, String data, Boolean signControl,
                     Boolean signPerformance, String information) {
         this.id = id;
         this.subject = subject;
         this.author = author;
         this.performers = performers;
-        this.data = data;
+        this.date = data;
         this.signControl = signControl;
         this.signPerformance = signPerformance;
         this.information = information;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -55,12 +55,12 @@ public class Document {
         this.performers = performers;
     }
 
-    public String getData() {
-        return data;
+    public String getDate() {
+        return date;
     }
 
-    public void setData(String data) {
-        this.data = data;
+    public void setDate(String date) {
+        this.date = date;
     }
 
     public Boolean getSignControl() {
@@ -94,7 +94,7 @@ public class Document {
                 ", subject='" + subject + '\'' +
                 ", author='" + author + '\'' +
                 ", performers='" + performers + '\'' +
-                ", data='" + data + '\'' +
+                ", data='" + date + '\'' +
                 ", signControl=" + signControl +
                 ", signPerformance=" + signPerformance +
                 ", information='" + information + '\'' +
