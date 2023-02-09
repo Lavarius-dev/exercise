@@ -1,0 +1,11 @@
+Exception Handler - done
+Rest pagination list
+/documents?page=2&per_page=5, где "?page=2&per_page=5" - запрос
+/documents?page=2&per_page=5&subject=subj_1 - поиск по атрибуту
+Spring query parameters
+create page from list
+статус контроля - done
+статус исполнения - done
+date iso - done
+3 модели - получение/изменение/добавление - done
+// какие параметры я могу менять в поручении? - done

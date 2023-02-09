@@ -1,42 +1,50 @@
 package dev.lavarius.exercise.controller;
 
-import dev.lavarius.exercise.model.Document;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/documents")
 public class DocumentController {
-    private List<Document> documents = new ArrayList<>();
+    private List<DocumentGetModel> documents = new ArrayList<>();
 
     @GetMapping()
-    public List<Document> getAllDocuments() {
-        return documents;
+    public Page<DocumentGetModel> getAllDocuments(Pageable pageable) {
+        return null;
     }
 
     @GetMapping("/{id}")
-    public Document getDocumentById(@PathVariable Integer id) {
-        return documents.stream().filter(document -> document.getId().equals(id)).findAny().orElse(null);
+    public DocumentGetModel getDocumentById(@PathVariable Integer id) {
+        return documents.stream().filter(document -> document.getId().equals(id)).findAny()
+                .orElseThrow(() -> new NoSuchElementException("Document not found!"));
     }
 
-    @PostMapping("/create")
-    public Document createDocument(@RequestBody Document document) {
-        documents.add(document);
-        return document;
+    @PostMapping()
+    public DocumentGetModel createDocument(@RequestBody DocumentCreateModel document) {
+        DocumentGetModel newDocument = new DocumentGetModel(
+                document.getId(), document.getSubject(), document.getAuthor(),
+                document.getEmployees(), document.getDate(), false,
+                false, document.getInformation()
+        );
+        documents.add(newDocument);
+        return newDocument;
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public void deleteDocument(@PathVariable Integer id) {
         documents.removeIf(document -> document.getId().equals(id));
     }
 
-    public Document editDocument() {
-        return null;
-    }
-
-    public String getDocumentsByAttribute() {
-        return null;
+    @PutMapping("/{id}")
+    public DocumentGetModel editDocument(@RequestBody DocumentEditModel document, @PathVariable Integer id) {
+        DocumentGetModel editDocument = getDocumentById(id);
+        editDocument.setInformation(document.getInformation());
+        editDocument.setEmployees(document.getEmployees());
+        return editDocument;
     }
 }
