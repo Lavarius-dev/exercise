@@ -1,9 +1,9 @@
 {
   "subject": "subj_1",
   "author": "auth_1",
-  "performers": [
-    "perf_1",
-    "perf_2"
+  "employees": [
+    "emp_1",
+    "emp_2"
   ],
   "date": "29.12.2023",
   "information": "inf_1"

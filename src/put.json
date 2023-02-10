@@ -1,3 +1,7 @@
 {
-
+  "employees": [
+    "emp_1",
+    "emp_2"
+  ],
+  "information": "inf_1"
 }
