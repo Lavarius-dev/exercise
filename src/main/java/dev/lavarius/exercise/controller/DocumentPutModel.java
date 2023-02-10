@@ -1,12 +1,12 @@
 package dev.lavarius.exercise.controller;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class DocumentPutModel {
-    private ArrayList<String> employees;
+    private List<String> employees;
     private String information;
 
-    public DocumentPutModel(ArrayList<String> employees, String information) {
+    public DocumentPutModel(List<String> employees, String information) {
         this.employees = employees;
         this.information = information;
     }
@@ -19,11 +19,11 @@ public class DocumentPutModel {
         this.information = information;
     }
 
-    public ArrayList<String> getEmployees() {
+    public List<String> getEmployees() {
         return employees;
     }
 
-    public void setEmployees(ArrayList<String> employees) {
+    public void setEmployees(List<String> employees) {
         this.employees = employees;
     }
 }

@@ -1,16 +1,17 @@
 package dev.lavarius.exercise.controller;
 
-import java.util.ArrayList;
+import java.time.LocalDate;
+import java.util.List;
 
 public class DocumentPostModel {
     private static Integer id = 0;
     private String subject;
     private String author;
-    private ArrayList<String> employees;
-    private String date;
+    private List<String> employees;
+    private LocalDate date;
     private String information;
 
-    public DocumentPostModel(String subject, String author, ArrayList<String> employees, String date, String information) {
+    public DocumentPostModel(String subject, String author, List<String> employees, LocalDate date, String information) {
         this.subject = subject;
         this.author = author;
         this.employees = employees;
@@ -39,19 +40,19 @@ public class DocumentPostModel {
         this.author = author;
     }
 
-    public ArrayList<String> getEmployees() {
+    public List<String> getEmployees() {
         return employees;
     }
 
-    public void setEmployees(ArrayList<String> employees) {
+    public void setEmployees(List<String> employees) {
         this.employees = employees;
     }
 
-    public String getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 
