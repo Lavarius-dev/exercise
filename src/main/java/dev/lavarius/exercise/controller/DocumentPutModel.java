@@ -2,11 +2,11 @@ package dev.lavarius.exercise.controller;
 
 import java.util.ArrayList;
 
-public class DocumentEditModel {
+public class DocumentPutModel {
     private ArrayList<String> employees;
     private String information;
 
-    public DocumentEditModel(ArrayList<String> employees, String information) {
+    public DocumentPutModel(ArrayList<String> employees, String information) {
         this.employees = employees;
         this.information = information;
     }
