@@ -1,19 +1,19 @@
 package dev.lavarius.exercise.controller;
 
-import java.util.ArrayList;
+import java.time.LocalDate;
+import java.util.List;
 
 public class DocumentGetModel {
     private Integer id;
     private String subject;
     private String author;
-    private ArrayList<String> employees;
-    private String date;
+    private List<String> employees;
+    private LocalDate date;
     private Boolean attributeOfControl;
     private Boolean attributeOfPerformance;
     private String information;
 
-    public DocumentGetModel(Integer id, String subject, String author, ArrayList<String> performers,
-                            String date, Boolean signControl, Boolean signPerformance, String information) {
+    public DocumentGetModel(Integer id, String subject, String author, List<String> performers, LocalDate date, Boolean signControl, Boolean signPerformance, String information) {
         this.id = id;
         this.subject = subject;
         this.author = author;
@@ -40,11 +40,11 @@ public class DocumentGetModel {
         this.subject = subject;
     }
 
-    public ArrayList<String> getEmployees() {
+    public List<String> getEmployees() {
         return employees;
     }
 
-    public void setEmployees(ArrayList<String> employees) {
+    public void setEmployees(List<String> employees) {
         this.employees = employees;
     }
 
@@ -56,11 +56,11 @@ public class DocumentGetModel {
         this.author = author;
     }
 
-    public String getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 
@@ -90,15 +90,6 @@ public class DocumentGetModel {
 
     @Override
     public String toString() {
-        return "DocumentGetModel{" +
-                "id=" + id +
-                ", subject='" + subject + '\'' +
-                ", author='" + author + '\'' +
-                ", employees=" + employees +
-                ", date='" + date + '\'' +
-                ", attributeOfControl=" + attributeOfControl +
-                ", attributeOfPerformance=" + attributeOfPerformance +
-                ", information='" + information + '\'' +
-                '}';
+        return "DocumentGetModel{" + "id=" + id + ", subject='" + subject + '\'' + ", author='" + author + '\'' + ", employees=" + employees + ", date='" + date + '\'' + ", attributeOfControl=" + attributeOfControl + ", attributeOfPerformance=" + attributeOfPerformance + ", information='" + information + '\'' + '}';
     }
 }
