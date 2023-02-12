@@ -1,5 +1,7 @@
 package dev.lavarius.exercise.controller;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -8,19 +10,23 @@ public class DocumentGetModel {
     private String subject;
     private String author;
     private List<String> employees;
+
+    @NotNull
     private LocalDate date;
     private Boolean attributeOfControl;
     private Boolean attributeOfPerformance;
     private String information;
 
-    public DocumentGetModel(Integer id, String subject, String author, List<String> performers, LocalDate date, Boolean signControl, Boolean signPerformance, String information) {
+    public DocumentGetModel(Integer id, String subject, String author,
+                            List<String> performers, LocalDate date, Boolean attributeOfControl,
+                            Boolean attributeOfPerformance, String information) {
         this.id = id;
         this.subject = subject;
         this.author = author;
         this.employees = performers;
         this.date = date;
-        this.attributeOfControl = signControl;
-        this.attributeOfPerformance = signPerformance;
+        this.attributeOfControl = attributeOfControl;
+        this.attributeOfPerformance = attributeOfPerformance;
         this.information = information;
     }
 
