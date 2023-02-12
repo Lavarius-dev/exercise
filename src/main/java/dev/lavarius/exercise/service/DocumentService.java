@@ -5,6 +5,7 @@ import dev.lavarius.exercise.controller.DocumentPostModel;
 import dev.lavarius.exercise.controller.DocumentPutModel;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
 import java.util.Map;
 
 public interface DocumentService {
@@ -17,4 +18,13 @@ public interface DocumentService {
     DocumentGetModel getDocumentById(Integer id);
 
     Page<DocumentGetModel> getAllDocuments(Map<String, String> parameters);
+
+    void setEmployees(Integer id, List<String> employees);
+
+    void report(Integer id);
+
+//    void acceptDocument(Integer id);// Нужно доделать
+//
+//    void rejectDocument(Integer id);// Нужно доделать
+
 }

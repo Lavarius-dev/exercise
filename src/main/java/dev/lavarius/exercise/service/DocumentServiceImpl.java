@@ -3,8 +3,11 @@ package dev.lavarius.exercise.service;
 import dev.lavarius.exercise.controller.DocumentGetModel;
 import dev.lavarius.exercise.controller.DocumentPostModel;
 import dev.lavarius.exercise.controller.DocumentPutModel;
+import dev.lavarius.exercise.statemachine.Event;
+import dev.lavarius.exercise.statemachine.State;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.statemachine.StateMachine;
 import org.springframework.stereotype.Service;
 
 import java.time.DateTimeException;
@@ -14,6 +17,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class DocumentServiceImpl implements DocumentService {
+
+    private StateMachine<State, Event> stateMachine;
     private List<DocumentGetModel> documents = new ArrayList<>();
 
     @Override
@@ -41,7 +46,7 @@ public class DocumentServiceImpl implements DocumentService {
     public DocumentGetModel editDocument(DocumentPutModel documentPutModel, Integer id) {
         DocumentGetModel editDocument = getDocumentById(id);
         editDocument.setInformation(documentPutModel.getInformation());
-        editDocument.setEmployees(documentPutModel.getEmployees());
+        setEmployees(id, documentPutModel.getEmployees());
         return editDocument;
     }
 
@@ -58,5 +63,31 @@ public class DocumentServiceImpl implements DocumentService {
             return new PageImpl<>(documents.stream().filter(documentGetModel ->
                     documentGetModel.getAuthor().equals(parameters.get("author"))).collect(Collectors.toList()));
         }
+    }
+
+    /* Ниже функция добавления исполнителей
+        Либо сделать так, либо в функцию editDocument добавить условие
+        if (!employees.isEmpty()){
+            document.setEmployees(employees);
+            document.setAttributeOfPerformance(true);
+            stateMachine.sendEvent(Event.SET_EMPLOYEES);
+        }
+    */
+    @Override
+    public void setEmployees(Integer id, List<String> employees) {
+        var document = getDocumentById(id);
+        if (!employees.isEmpty()) {
+            document.setEmployees(employees);
+            stateMachine.sendEvent(Event.SET_EMPLOYEES);
+            document.setAttributeOfPerformance(true);
+        }
+    }
+
+    @Override
+    public void report(Integer id) {
+        var document = getDocumentById(id);
+        stateMachine.sendEvent(Event.REPORT);
+        document.setAttributeOfPerformance(false);
+        document.setAttributeOfControl(true);
     }
 }
