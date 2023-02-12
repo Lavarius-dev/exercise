@@ -7,10 +7,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.time.DateTimeException;
+import java.time.LocalDate;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,13 +23,18 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public DocumentGetModel createDocument(DocumentPostModel documentPostModel) {
-        DocumentGetModel newDocument = new DocumentGetModel(
-                documentPostModel.getId(), documentPostModel.getSubject(), documentPostModel.getAuthor(),
-                documentPostModel.getEmployees(), documentPostModel.getDate(), false,
-                false, documentPostModel.getInformation()
-        );
-        documents.add(newDocument);
-        return newDocument;
+        if (documentPostModel.getDate().isBefore(LocalDate.now()) ||
+                documentPostModel.getDate().isEqual(LocalDate.now())) {
+            throw new DateTimeException("Invalid date format!");
+        } else {
+            DocumentGetModel newDocument = new DocumentGetModel(
+                    documentPostModel.getId(), documentPostModel.getSubject(), documentPostModel.getAuthor(),
+                    Collections.emptyList(), documentPostModel.getDate(), false, false,
+                    documentPostModel.getInformation()
+            );
+            documents.add(newDocument);
+            return newDocument;
+        }
     }
 
     @Override

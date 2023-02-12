@@ -4,8 +4,9 @@ import dev.lavarius.exercise.service.DocumentService;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
-
+// добавить операции
 @RestController
 @RequestMapping("/documents")
 public class DocumentController {
@@ -38,5 +39,12 @@ public class DocumentController {
     @PutMapping("/{id}")
     public DocumentGetModel editDocument(@RequestBody DocumentPutModel document, @PathVariable Integer id) {
         return documentService.editDocument(document, id);
+    }
+
+    // Example code below
+    @PostMapping("/{id}/add-employees")
+    public void addEmployees(List<String> employees, @PathVariable Integer id){
+        var document = documentService.getDocumentById(id);
+        document.setEmployees(employees);
     }
 }
