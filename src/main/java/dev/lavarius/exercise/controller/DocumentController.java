@@ -40,11 +40,4 @@ public class DocumentController {
     public DocumentGetModel editDocument(@RequestBody DocumentPutModel document, @PathVariable Integer id) {
         return documentService.editDocument(document, id);
     }
-
-    // Example code below
-    @PostMapping("/{id}/add-employees")
-    public void addEmployees(List<String> employees, @PathVariable Integer id){
-        var document = documentService.getDocumentById(id);
-        document.setEmployees(employees);
-    }
 }
