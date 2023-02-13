@@ -4,5 +4,6 @@ public enum Event {
     SET_EMPLOYEES,
     REPORT,
     REJECT,
-    ACCEPT
+    ACCEPT,
+    REWORK_DOCUMENT
 }

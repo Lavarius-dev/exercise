@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+
 // добавить операции
 @RestController
 @RequestMapping("/documents")
@@ -39,5 +40,30 @@ public class DocumentController {
     @PutMapping("/{id}")
     public DocumentGetModel editDocument(@RequestBody DocumentPutModel document, @PathVariable Integer id) {
         return documentService.editDocument(document, id);
+    }
+
+    @GetMapping("/{id}/setEmployees")
+    public Boolean setEmployees(@PathVariable Integer id, List<String> employees) {
+        return documentService.setWorkers(id, employees);
+    }
+
+    @GetMapping("/{id}/report")
+    public Boolean report(@PathVariable Integer id) {
+        return documentService.report(id);
+    }
+
+    @GetMapping("/{id}/accept")
+    public Boolean acceptDocument(@PathVariable Integer id) {
+        return documentService.acceptDocument(id);
+    }
+
+    @GetMapping("/{id}/reject")
+    public Boolean rejectDocument(@PathVariable Integer id) {
+        return documentService.rejectDocument(id);
+    }
+
+    @GetMapping("/{id}/reworkDocument")
+    public Boolean reworkDocument(@PathVariable Integer id){
+        return documentService.reworkDocument(id);
     }
 }
