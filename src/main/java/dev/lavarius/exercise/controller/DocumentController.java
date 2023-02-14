@@ -42,28 +42,24 @@ public class DocumentController {
         return documentService.editDocument(document, id);
     }
 
-    @GetMapping("/{id}/setEmployees")
-    public Boolean setEmployees(@PathVariable Integer id, List<String> employees) {
-        return documentService.setWorkers(id, employees);
+    @PutMapping("/{id}/setEmployees")
+    public void setEmployees(@PathVariable Integer id, @RequestBody Map<String, List<String>> employees) {
+        documentService.setWorkers(id, employees.get("employees"));
     }
 
-    @GetMapping("/{id}/report")
-    public Boolean report(@PathVariable Integer id) {
-        return documentService.report(id);
+    @PutMapping("/{id}/report")
+    public void report(@PathVariable Integer id) {
+        documentService.report(id);
     }
 
-    @GetMapping("/{id}/accept")
-    public Boolean acceptDocument(@PathVariable Integer id) {
-        return documentService.acceptDocument(id);
+    @PutMapping("/{id}/accept")
+    public void acceptDocument(@PathVariable Integer id) {
+        documentService.acceptDocument(id);
     }
 
-    @GetMapping("/{id}/reject")
-    public Boolean rejectDocument(@PathVariable Integer id) {
-        return documentService.rejectDocument(id);
+    @PutMapping("/{id}/reject")
+    public void rejectDocument(@PathVariable Integer id) {
+        documentService.rejectDocument(id);
     }
 
-    @GetMapping("/{id}/reworkDocument")
-    public Boolean reworkDocument(@PathVariable Integer id){
-        return documentService.reworkDocument(id);
-    }
 }

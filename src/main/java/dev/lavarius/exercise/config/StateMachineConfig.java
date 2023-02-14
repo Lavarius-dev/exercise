@@ -1,8 +1,12 @@
 package dev.lavarius.exercise.config;
 
-import dev.lavarius.exercise.statemachine.Event;
-import dev.lavarius.exercise.statemachine.State;
+import dev.lavarius.exercise.statemachine.action.*;
+import dev.lavarius.exercise.statemachine.event.Event;
+import dev.lavarius.exercise.statemachine.listener.DocumentEventListener;
+import dev.lavarius.exercise.statemachine.persist.DocumentStatePersister;
+import dev.lavarius.exercise.statemachine.state.State;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
@@ -10,10 +14,8 @@ import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
-import org.springframework.statemachine.guard.Guard;
-import org.springframework.statemachine.listener.StateMachineListener;
-import org.springframework.statemachine.listener.StateMachineListenerAdapter;
-import org.springframework.statemachine.transition.Transition;
+import org.springframework.statemachine.persist.DefaultStateMachinePersister;
+import org.springframework.statemachine.persist.StateMachinePersister;
 
 import java.util.EnumSet;
 
@@ -23,19 +25,8 @@ import java.util.EnumSet;
 public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<State, Event> {
     @Override
     public void configure(StateMachineConfigurationConfigurer<State, Event> config) throws Exception {
-        config.withConfiguration().autoStartup(true);
+        config.withConfiguration().autoStartup(true).listener(new DocumentEventListener());
     }
-
-    private StateMachineListener<State, Event> listener() {
-        return new StateMachineListenerAdapter<State, Event>() {
-            @Override
-            public void transition(Transition<State, Event> transition) {
-                log.info("Change state from {} to {}",
-                        transition.getSource().getId(), transition.getTarget().getId());
-            }
-        };
-    }
-
 
     @Override
     public void configure(StateMachineStateConfigurer<State, Event> states) throws Exception {
@@ -49,47 +40,53 @@ public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<State,
     public void configure(StateMachineTransitionConfigurer<State, Event> transitions) throws Exception {
         transitions.withExternal()
                 .source(State.PREPARATION).target(State.EXECUTION).event(Event.SET_EMPLOYEES)
-                .action(setEmployeesAction())
+                .action(setEmployeesAction(), errorAction())
                 .and().withExternal()
                 .source(State.EXECUTION).target(State.CONTROL).event(Event.REPORT)
-                .action(reportAction())
+                .action(reportAction(), errorAction())
                 .and().withExternal()
-                .source(State.CONTROL).target(State.REWORK).guard(rejectedGuard()).event(Event.REJECT)
-                .action(rejectDocumentAction())
+                .source(State.CONTROL).target(State.REWORK).event(Event.REJECT)
+                .action(rejectDocumentAction(), errorAction())
                 .and().withExternal()
                 .source(State.CONTROL).target(State.RECEIVE).event(Event.ACCEPT)
-                .action(acceptDocumentAction())
+                .action(acceptDocumentAction(), errorAction())
                 .and().withExternal()
                 .source(State.REWORK).target(State.EXECUTION).event(Event.REWORK_DOCUMENT)
-                .action(reworkDocumentAction());
+                .action(reworkDocumentAction(), errorAction());
     }
 
-    private Guard<State, Event> rejectedGuard() {
-        return stateContext -> {
-            return (Boolean) stateContext.getExtendedState().getVariables().get("rejected");
-        };
+    @Bean
+    public Action<State, Event> acceptDocumentAction() {
+        return new AcceptDocumentAction();
     }
 
-    private Action<State, Event> acceptDocumentAction() {
-        return stateContext -> log.info("Document accepted!");
+    @Bean
+    public Action<State, Event> rejectDocumentAction() {
+        return new RejectDocumentAction();
     }
 
-    private Action<State, Event> rejectDocumentAction() {
-        return stateContext -> {
-            log.info("Need rework document!");
-            stateContext.getExtendedState().getVariables().put("rejected", true);
-        };
+    @Bean
+    public Action<State, Event> setEmployeesAction() {
+        return new SetEmployeesAction();
     }
 
-    private Action<State, Event> setEmployeesAction() {
-        return stateContext -> log.info("Need set employees!");
+    @Bean
+    public Action<State, Event> reportAction() {
+        return new ReportAction();
     }
 
-    private Action<State, Event> reportAction() {
-        return stateContext -> log.info("Document is ready to control");
+    @Bean
+    public Action<State, Event> reworkDocumentAction() {
+        return new ReworkDocumentAction();
     }
 
-    private Action<State, Event> reworkDocumentAction() {
-        return stateContext -> log.info("Document was reworked!");
+    @Bean
+    public Action<State, Event> errorAction() {
+        return new ErrorAction();
+    }
+
+    @Bean
+    public StateMachinePersister<State, Event, Integer> persister() {
+        return new DefaultStateMachinePersister<>(new DocumentStatePersister());
     }
 }

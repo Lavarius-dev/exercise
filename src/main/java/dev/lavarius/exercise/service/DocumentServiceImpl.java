@@ -1,37 +1,38 @@
 package dev.lavarius.exercise.service;
 
-import dev.lavarius.exercise.DocumentMachinePair;
+import dev.lavarius.exercise.statemachine.DocumentMachinePair;
 import dev.lavarius.exercise.controller.DocumentGetModel;
 import dev.lavarius.exercise.controller.DocumentPostModel;
 import dev.lavarius.exercise.controller.DocumentPutModel;
-import dev.lavarius.exercise.statemachine.Event;
-import dev.lavarius.exercise.statemachine.State;
+import dev.lavarius.exercise.statemachine.event.Event;
+import dev.lavarius.exercise.statemachine.state.State;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.StateMachineFactory;
+import org.springframework.statemachine.persist.StateMachinePersister;
 import org.springframework.stereotype.Service;
 
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class DocumentServiceImpl implements DocumentService {
-//    private List<DocumentGetModel> documents = new ArrayList<>();
     private StateMachineFactory<State, Event> stateMachineFactory;
+    private StateMachinePersister<State, Event, Integer> persister;
     private List<DocumentMachinePair> documentMachinePairs = new ArrayList<>();
 
-    public DocumentServiceImpl(StateMachineFactory<State, Event> stateMachineFactory) {
+    public DocumentServiceImpl(StateMachineFactory<State, Event> stateMachineFactory, StateMachinePersister<State, Event, Integer> persister) {
         this.stateMachineFactory = stateMachineFactory;
+        this.persister = persister;
     }
+
 
     @Override
     public void deleteDocument(Integer id) {
         documentMachinePairs.removeIf(
                 documentMachinePair -> documentMachinePair.documentGetModel().getId().equals(id));
-//        documents.removeIf(document -> document.getId().equals(id));
     }
 
     @Override
@@ -46,7 +47,12 @@ public class DocumentServiceImpl implements DocumentService {
                     Collections.emptyList(), documentPostModel.getDate(), false, false,
                     documentPostModel.getInformation()
             );
-//            documents.add(newDocument);
+            stateMachine.getExtendedState().getVariables().put("DOCUMENT_ID", newDocument.getId());
+            try {
+                persister.persist(stateMachine, newDocument.getId());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             documentMachinePairs.add(new DocumentMachinePair(newDocument, stateMachine));
             return newDocument;
         }
@@ -54,11 +60,23 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public DocumentGetModel editDocument(DocumentPutModel documentPutModel, Integer id) {
-        DocumentGetModel editDocument = getDocumentById(id);
-        editDocument.setInformation(documentPutModel.getInformation());
-        editDocument.setEmployees(documentPutModel.getEmployees());
-//        setEmployees(id, documentPutModel.getEmployees());
-        return editDocument;
+        DocumentMachinePair object = documentMachinePairs.stream().
+                filter(documentMachinePair ->
+                        documentMachinePair.documentGetModel().getId().equals(id))
+                .findAny().orElseThrow(() -> new NoSuchElementException("Document not found!"));
+        object.documentGetModel().setInformation(documentPutModel.getInformation());
+        if (!object.stateMachine().getState().getId().equals(State.REWORK)) {
+            throw new RuntimeException("Невозможно выполнить изменение документа");
+        } else {
+            try {
+                persister.persist(object.stateMachine(), id);
+                object.stateMachine().sendEvent(Event.REWORK_DOCUMENT);
+                object.documentGetModel().setAttributeOfPerformance(true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return object.documentGetModel();
+        }
     }
 
     @Override
@@ -66,8 +84,6 @@ public class DocumentServiceImpl implements DocumentService {
         return documentMachinePairs.stream().filter(
                 documentMachinePair -> documentMachinePair.documentGetModel().getId().equals(id)
         ).findAny().orElseThrow(() -> new NoSuchElementException("Document not found!")).documentGetModel();
-//        return documents.stream().filter(document -> document.getId().equals(id)).findAny()
-//                .orElseThrow(() -> new NoSuchElementException("Document not found!"));
     }
 
     @Override
@@ -76,40 +92,83 @@ public class DocumentServiceImpl implements DocumentService {
         for (DocumentMachinePair documentMachinePair : documentMachinePairs) {
             documents.add(documentMachinePair.documentGetModel());
         }
-        if (parameters.isEmpty()) {
-            return new PageImpl<>(documents);
-        }
-        else {
-//            return new PageImpl<>(documents.stream().filter(documentGetModel ->
-//                    documentGetModel.getAuthor().equals(parameters.get("author"))).collect(Collectors.toList()));
-        }
         return new PageImpl<>(documents);
     }
 
     @Override
-    public Boolean acceptDocument(Integer id) {
-        return null;
+    public void acceptDocument(Integer id) {
+        DocumentMachinePair object = documentMachinePairs.stream().
+                filter(documentMachinePair ->
+                        documentMachinePair.documentGetModel().getId().equals(id))
+                .findAny().orElseThrow(() -> new NoSuchElementException("Document not found!"));
+        if (!object.stateMachine().getState().getId().equals(State.CONTROL)) {
+            throw new RuntimeException("Невозможно выполнить изменение документа");
+        } else {
+            try {
+                persister.persist(object.stateMachine(), id);
+                object.stateMachine().sendEvent(Event.ACCEPT);
+                object.documentGetModel().setAttributeOfControl(false);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
-    public Boolean rejectDocument(Integer id) {
-        return null;
+    public void rejectDocument(Integer id) {
+        DocumentMachinePair object = documentMachinePairs.stream().
+                filter(documentMachinePair ->
+                        documentMachinePair.documentGetModel().getId().equals(id))
+                .findAny().orElseThrow(() -> new NoSuchElementException("Document not found!"));
+        if (!object.stateMachine().getState().getId().equals(State.CONTROL)) {
+            throw new RuntimeException("Невозможно выполнить изменение документа");
+        } else {
+            try {
+                persister.persist(object.stateMachine(), id);
+                object.stateMachine().sendEvent(Event.REJECT);
+                object.documentGetModel().setAttributeOfControl(false);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
-    public Boolean setWorkers(Integer id, List<String> employees) {
-        DocumentGetModel document = getDocumentById(id);
-        document.setEmployees(employees);
-        return null;
+    public void setWorkers(Integer id, List<String> employees) {
+        DocumentMachinePair object = documentMachinePairs.stream().
+                filter(documentMachinePair ->
+                        documentMachinePair.documentGetModel().getId().equals(id))
+                .findAny().orElseThrow(() -> new NoSuchElementException("Document not found!"));
+        if (!object.stateMachine().getState().getId().equals(State.PREPARATION)) {
+            throw new RuntimeException("Невозможно выполнить изменение документа");
+        } else {
+            try {
+                persister.persist(object.stateMachine(), id);
+                object.stateMachine().sendEvent(Event.SET_EMPLOYEES);
+                object.documentGetModel().setAttributeOfPerformance(true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
-    public Boolean report(Integer id) {
-        return null;
-    }
-
-    @Override
-    public Boolean reworkDocument(Integer id) {
-        return null;
+    public void report(Integer id) {
+        DocumentMachinePair object = documentMachinePairs.stream().
+                filter(documentMachinePair ->
+                        documentMachinePair.documentGetModel().getId().equals(id))
+                .findAny().orElseThrow(() -> new NoSuchElementException("Document not found!"));
+        if (!object.stateMachine().getState().getId().equals(State.EXECUTION)) {
+            throw new RuntimeException("Невозможно выполнить изменение документа");
+        } else {
+            try {
+                persister.persist(object.stateMachine(), id);
+                object.stateMachine().sendEvent(Event.REPORT);
+                object.documentGetModel().setAttributeOfControl(true);
+                object.documentGetModel().setAttributeOfPerformance(false);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
