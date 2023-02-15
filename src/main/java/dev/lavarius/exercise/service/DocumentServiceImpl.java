@@ -24,7 +24,8 @@ public class DocumentServiceImpl implements DocumentService {
     private List<DocumentMachinePair> documentMachinePairs = new ArrayList<>();
 
     // В конструкторе ниже есть ошибка в StateMachineFactory. Bean, как бы, не видно, но он есть....
-    public DocumentServiceImpl(StateMachineFactory<State, Event> stateMachineFactory, StateMachinePersister<State, Event, Integer> persister) {
+    public DocumentServiceImpl(StateMachineFactory<State, Event> stateMachineFactory,
+                               StateMachinePersister<State, Event, Integer> persister) {
         this.stateMachineFactory = stateMachineFactory;
         this.persister = persister;
     }
