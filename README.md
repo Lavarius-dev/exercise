@@ -2,4 +2,6 @@
 Данные для бд(PostgreSQL):  
 login - postgres.  
 password - postgres.  
-Работа приложения была проверена с помощью Postman
+Работа приложения была проверена с помощью Postman.  
+Ниже ссылка на jar файл.  
+https://disk.yandex.ru/d/Rjn2Gbk2EFjEsQ
