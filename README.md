@@ -1,5 +1,5 @@
 Тестовое задание на создание системы электронного документа оборота. 
 Данные для бд(PostgreSQL):  
-login - postgres. 
-password - postgres. 
+login - postgres.  
+password - postgres.  
 Работа приложения была проверена с помощью Postman
