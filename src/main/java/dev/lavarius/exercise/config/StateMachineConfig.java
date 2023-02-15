@@ -1,41 +1,32 @@
 package dev.lavarius.exercise.config;
 
-import dev.lavarius.exercise.statemachine.Event;
-import dev.lavarius.exercise.statemachine.State;
+import dev.lavarius.exercise.statemachine.action.*;
+import dev.lavarius.exercise.statemachine.event.Event;
+import dev.lavarius.exercise.statemachine.listener.DocumentEventListener;
+import dev.lavarius.exercise.statemachine.persist.DocumentStatePersister;
+import dev.lavarius.exercise.statemachine.state.State;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.action.Action;
-import org.springframework.statemachine.config.EnableStateMachine;
+import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
-import org.springframework.statemachine.listener.StateMachineListener;
-import org.springframework.statemachine.listener.StateMachineListenerAdapter;
-import org.springframework.statemachine.transition.Transition;
+import org.springframework.statemachine.persist.DefaultStateMachinePersister;
+import org.springframework.statemachine.persist.StateMachinePersister;
 
 import java.util.EnumSet;
-import java.util.Optional;
 
 @Slf4j
 @Configuration
-@EnableStateMachine
+@EnableStateMachineFactory
 public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<State, Event> {
     @Override
     public void configure(StateMachineConfigurationConfigurer<State, Event> config) throws Exception {
-        config.withConfiguration().autoStartup(true).listener(listener());
+        config.withConfiguration().autoStartup(true).listener(new DocumentEventListener());
     }
-
-    private StateMachineListener<State, Event> listener() {
-        return new StateMachineListenerAdapter<State, Event>() {
-            @Override
-            public void transition(Transition<State, Event> transition) {
-                log.info("Change state from {} to {}",
-                        transition.getSource().getId(), transition.getTarget().getId());
-            }
-        };
-    }
-
 
     @Override
     public void configure(StateMachineStateConfigurer<State, Event> states) throws Exception {
@@ -49,32 +40,53 @@ public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<State,
     public void configure(StateMachineTransitionConfigurer<State, Event> transitions) throws Exception {
         transitions.withExternal()
                 .source(State.PREPARATION).target(State.EXECUTION).event(Event.SET_EMPLOYEES)
-                .action(setEmployees())
+                .action(setEmployeesAction(), errorAction())
                 .and().withExternal()
                 .source(State.EXECUTION).target(State.CONTROL).event(Event.REPORT)
-                .action(report())
+                .action(reportAction(), errorAction())
                 .and().withExternal()
                 .source(State.CONTROL).target(State.REWORK).event(Event.REJECT)
-                .action(checkDocumentToReject())
+                .action(rejectDocumentAction(), errorAction())
                 .and().withExternal()
                 .source(State.CONTROL).target(State.RECEIVE).event(Event.ACCEPT)
-                .action(checkDocumentToAccept());
-        // добавить еще ветку на rework -> execution
+                .action(acceptDocumentAction(), errorAction())
+                .and().withExternal()
+                .source(State.REWORK).target(State.EXECUTION).event(Event.REWORK_DOCUMENT)
+                .action(reworkDocumentAction(), errorAction());
     }
 
-    private Action<State, Event> checkDocumentToAccept() {
-        return stateContext -> log.info("Document accepted!");
+    @Bean
+    public Action<State, Event> acceptDocumentAction() {
+        return new AcceptDocumentAction();
     }
 
-    private Action<State, Event> checkDocumentToReject() {
-        return stateContext -> log.info("Need rework document!");
+    @Bean
+    public Action<State, Event> rejectDocumentAction() {
+        return new RejectDocumentAction();
     }
 
-    private Action<State, Event> setEmployees() {
-        return stateContext -> log.info("Need set employees!");
+    @Bean
+    public Action<State, Event> setEmployeesAction() {
+        return new SetEmployeesAction();
     }
 
-    private Action<State, Event> report() {
-        return stateContext -> log.info("Document is ready to control");
+    @Bean
+    public Action<State, Event> reportAction() {
+        return new ReportAction();
+    }
+
+    @Bean
+    public Action<State, Event> reworkDocumentAction() {
+        return new ReworkDocumentAction();
+    }
+
+    @Bean
+    public Action<State, Event> errorAction() {
+        return new ErrorAction();
+    }
+
+    @Bean
+    public StateMachinePersister<State, Event, Integer> persister() {
+        return new DefaultStateMachinePersister<>(new DocumentStatePersister());
     }
 }

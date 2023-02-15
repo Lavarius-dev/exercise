@@ -2,7 +2,10 @@
   "id": 2,
   "subject": "subj_2_1",
   "author": "auth_2_1",
-  "performers": ["perf_3_1, perf_4_1"],
+  "performers": [
+    "perf_3_1",
+    "perf_4_1"
+  ],
   "data": "4 weeks",
   "signControl": false,
   "signPerformance": false,

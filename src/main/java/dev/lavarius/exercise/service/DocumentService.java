@@ -19,12 +19,12 @@ public interface DocumentService {
 
     Page<DocumentGetModel> getAllDocuments(Map<String, String> parameters);
 
-    void setEmployees(Integer id, List<String> employees);
+    void acceptDocument(Integer id);
+
+    void rejectDocument(Integer id);
+
+    void setWorkers(Integer id, List<String> employees);
 
     void report(Integer id);
-
-//    void acceptDocument(Integer id);// Нужно доделать
-//
-//    void rejectDocument(Integer id);// Нужно доделать
 
 }
